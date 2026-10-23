@@ -25,7 +25,7 @@
   --glow-rgb:79,227,255; --amber-rgb:255,181,71;
   --neb1:rgba(29,63,154,.55); --neb2:rgba(150,40,120,.22); --scan:rgba(255,255,255,.018);
   --th-bg:#16234a; --tt-bg:#141f42; --cell-half:rgba(22,34,68,.55); --cell-untimed:rgba(40,60,120,.5);
-  --today-cell:rgba(70,62,50,.45); --today-cell-half:rgba(62,56,48,.45); --cell-out:rgba(10,16,34,.7);
+  --today-cell:#1b2f56; --today-cell-half:#192b4f; --cell-out:rgba(10,16,34,.7);
   --field-bg:rgba(0,0,0,.35); --overlay-bg:rgba(1,3,10,.7); --btn-ink:#eafcff;
   --cyan:#4fe3ff; --amber:#ffb547; --tardis:#1d3f9a; --danger:#ff5d6c;
   --cyan-soft:rgba(var(--glow-rgb),.1); --amber-soft:rgba(var(--amber-rgb),.13);
@@ -323,7 +323,7 @@ tr.now td.istoday{box-shadow:inset 0 2px 0 var(--amber)}
   --glow-rgb:255,143,208; --amber-rgb:255,214,130;
   --neb1:rgba(170,70,210,.5); --neb2:rgba(255,100,170,.28); --scan:rgba(255,255,255,.015);
   --th-bg:#33194d; --tt-bg:#2d1645; --cell-half:rgba(54,25,76,.55); --cell-untimed:rgba(90,44,120,.5);
-  --today-cell:rgba(96,66,78,.45); --today-cell-half:rgba(86,60,72,.45); --cell-out:rgba(22,8,32,.7);
+  --today-cell:#3d2058; --today-cell-half:#381d51; --cell-out:rgba(22,8,32,.7);
   --field-bg:rgba(0,0,0,.3); --overlay-bg:rgba(10,2,18,.7); --btn-ink:#fff4fb;
   --cyan:#ff8fd0; --amber:#ffd682; --tardis:#7a3fb0; --danger:#ff6b8a;
   --cyan-soft:rgba(255,143,208,.12); --amber-soft:rgba(255,214,130,.13);
@@ -451,11 +451,13 @@ tr.now td.istoday{box-shadow:inset 0 2px 0 var(--amber)}
 .skin-menu .sw.office-dark{background:linear-gradient(135deg,#15171c 40%,#60a0ff 40% 60%,#2c3139 60%)}
 
 /* ===== 일정 블록: 물방울처럼 둥글고 살짝 입체감 ===== */
-:root{--sheen-mix:84%; --chip-hi:rgba(255,255,255,.14); --chip-drop:rgba(0,0,0,.35)}
-:root[data-skin="blossom"],:root[data-skin="office"]{--sheen-mix:55%; --chip-hi:rgba(255,255,255,.85); --chip-drop:rgba(30,20,40,.10)}
+:root{--tint-base:var(--panel-solid); --tint:26%; --sheen-a:.09; --chip-hi:rgba(255,255,255,.14); --chip-drop:rgba(0,0,0,.35)}
+:root[data-skin="nebula"]{--tint:28%}
+:root[data-skin="office-dark"]{--tint:22%; --sheen-a:.06}
+:root[data-skin="blossom"],:root[data-skin="office"]{--tint-base:#ffffff; --tint:14%; --sheen-a:.7; --chip-hi:rgba(255,255,255,.9); --chip-drop:rgba(30,20,40,.10)}
 .chip{
   border-left:0;border-radius:10px;
-  background:linear-gradient(180deg,color-mix(in srgb,var(--cbg) var(--sheen-mix),#fff) 0%,var(--cbg) 70%);
+  background:linear-gradient(180deg,rgba(255,255,255,var(--sheen-a)) 0%,rgba(255,255,255,0) 55%),color-mix(in srgb,var(--cfg) var(--tint),var(--tint-base));
   box-shadow:inset 3px 0 0 var(--cfg),inset 0 1px 0 var(--chip-hi),inset 0 -1px 0 rgba(0,0,0,.05),0 1px 2px var(--chip-drop),0 6px 14px -9px var(--cfg);
   transition:transform .12s ease,box-shadow .12s ease,background .15s;
 }
@@ -466,7 +468,8 @@ td.slot{position:relative}
   left:calc(3px + (100% - 6px) * var(--lane) / var(--lanes));
   width:calc((100% - 6px) / var(--lanes) - 2px);
   min-height:18px}
-.ev.tall{flex-direction:column;align-items:flex-start;gap:2px;padding-top:6px}
+.ev.tall{flex-direction:column;align-items:flex-start;gap:2px;padding-top:6px;--tint:var(--tint-tall,18%)}
+:root[data-skin="blossom"],:root[data-skin="office"]{--tint-tall:11%}
 .ev.tall .tt{white-space:normal;overflow-wrap:anywhere}
 .ev.tall .chk{position:absolute;top:6px;right:6px}
 .ev.tall:has(.chk) .tm,.ev.tall:has(.chk) .tt{padding-right:18px}
@@ -484,6 +487,7 @@ td.slot{position:relative}
 }
 .ev.stacked{outline:1.5px solid var(--panel-solid)}
 @media (prefers-reduced-motion:reduce){.chip:hover{transform:none}}
+#main{display:flex;flex-direction:column;gap:14px}
 </style>
 </head>
 <body>
