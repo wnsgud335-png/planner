@@ -1,5 +1,5 @@
 // 앱 파일은 인터넷이 되면 항상 최신으로 받습니다. VERSION은 캐시를 통째로 비우고 싶을 때 올리세요.
-const VERSION = "v3";
+const VERSION = "v4";
 const SHELL = `planner-shell-${VERSION}`;
 const CDN = "planner-cdn";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "firebase-config.js", "firebase-sync.js"];
@@ -32,8 +32,10 @@ self.addEventListener("fetch", e => {
   if (url.origin !== location.origin) return;
 
   // 앱 파일: 인터넷이 되면 항상 최신 파일, 오프라인이면 저장해 둔 파일
+  // cache: "no-cache" → GitHub Pages가 10분간 붙잡는 옛 파일 대신 매번 새 버전인지 서버에 확인
   const key = req.mode === "navigate" ? "index.html" : req;
-  e.respondWith(fetch(req).then(r => {
+  const fresh = req.mode === "navigate" ? fetch(req.url, { cache: "no-cache", credentials: "same-origin" }) : fetch(req, { cache: "no-cache" });
+  e.respondWith(fresh.then(r => {
     if (r.ok) { const copy = r.clone(); caches.open(SHELL).then(c => c.put(key, copy)); }
     return r;
   }).catch(() => caches.match(key, { ignoreSearch: true })));

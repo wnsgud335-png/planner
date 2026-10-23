@@ -305,6 +305,11 @@ tr.now td.istoday{box-shadow:inset 0 2px 0 var(--amber)}
   .actions .btn{flex:1}
   .actions .spacer{flex:0 0 100%;margin:0;order:3}
 }
+.gcal{display:flex;flex-direction:column;gap:2px;text-decoration:none;color:var(--ink);border:1px solid rgba(255,181,71,.5);background:var(--amber-soft);padding:10px 14px}
+.gcal:hover{box-shadow:0 0 14px rgba(255,181,71,.3)}
+.gcal-main{font-weight:600;color:var(--amber)}
+.gcal-main::before{content:"◷ "}
+.gcal-sub{font-size:12px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -381,6 +386,10 @@ tr.now td.istoday{box-shadow:inset 0 2px 0 var(--amber)}
     <div class="field"><label>분류</label><div class="cats" id="f-cats"></div></div>
     <div class="field"><label for="f-note">메모</label><textarea id="f-note" rows="2"></textarea></div>
     <label class="check"><input type="checkbox" id="f-done"> 완료</label>
+    <a class="gcal" id="f-gcal" href="https://calendar.google.com/calendar/render" target="_blank" rel="noopener">
+      <span class="gcal-main">Google 캘린더에 추가</span>
+      <span class="gcal-sub" id="f-gcal-sub">캘린더 앱이 시간에 맞춰 알림을 보내 줍니다</span>
+    </a>
     <div class="actions">
       <button type="button" class="btn danger spacer" id="f-del" hidden>삭제</button>
       <button type="button" class="btn ghost" id="f-cancel">취소</button>
@@ -582,15 +591,16 @@ function openEditor(item, isNew){
   document.getElementById("time-row").hidden = goal;
   document.getElementById("scope-note").hidden = !goal;
   if (goal) { const d = parseISO(item.date); document.getElementById("scope-text").textContent = item.scope === "week" ? `${d.getMonth()+1}월 ${d.getDate()}일 주 (${isoWeek(d)}주차)` : `${d.getFullYear()}년 ${d.getMonth()+1}월`; }
+  document.getElementById("f-gcal").hidden = goal;
+  document.getElementById("f-gcal-sub").textContent = item.gcalAt ? "이미 캘린더에 추가했어요 · 다시 누르면 한 번 더 추가됩니다" : "캘린더 앱이 시간에 맞춰 알림을 보내 줍니다";
   const del = document.getElementById("f-del"); del.hidden = isNew; del.classList.remove("armed"); del.textContent = "삭제";
   ov.hidden = false;
   setTimeout(() => document.getElementById("f-title").focus(), 0);
 }
 function closeEditor(){ ov.hidden = true; editing = null; }
 
-document.getElementById("editor").addEventListener("submit", e => {
-  e.preventDefault(); if (!editing) return;
-  const title = document.getElementById("f-title").value.trim(); if (!title) return;
+function readEditor(){
+  const title = document.getElementById("f-title").value.trim(); if (!title) return null;
   const { isNew, ...base } = editing;
   const next = { ...base, title,
     note: document.getElementById("f-note").value.trim(),
@@ -603,7 +613,37 @@ document.getElementById("editor").addEventListener("submit", e => {
     if (next.end && toMin(next.end) <= toMin(next.start)) next.end = "";
   }
   next.updated = Date.now();
+  return next;
+}
+document.getElementById("editor").addEventListener("submit", e => {
+  e.preventDefault(); if (!editing) return;
+  const next = readEditor(); if (!next) return;
   store.put(next); closeEditor();
+});
+
+/* Google 캘린더 추가: 캘린더의 "새 일정" 화면을 내용이 채워진 채로 엽니다 */
+function gcalUrl(i){
+  const ymd = d => d.replace(/-/g, "");
+  let dates;
+  if (i.start) {
+    const endMin = i.end ? toMin(i.end) : Math.min(toMin(i.start) + 30, 23*60 + 59);
+    const t = m => `${pad(Math.floor(m/60))}${pad(m%60)}00`;
+    dates = `${ymd(i.date)}T${t(toMin(i.start))}/${ymd(i.date)}T${t(endMin)}`;
+  } else {
+    dates = `${ymd(i.date)}/${ymd(iso(addDays(parseISO(i.date), 1)))}`;
+  }
+  const q = new URLSearchParams({ action: "TEMPLATE", text: i.title, dates, details: [i.note, "스케줄 플래너에서 추가"].filter(Boolean).join("\n") });
+  try { q.set("ctz", Intl.DateTimeFormat().resolvedOptions().timeZone); } catch(e){}
+  return "https://calendar.google.com/calendar/render?" + q.toString();
+}
+document.getElementById("f-gcal").addEventListener("click", e => {
+  if (!editing) { e.preventDefault(); return; }
+  const next = readEditor();
+  if (!next) { e.preventDefault(); document.getElementById("f-title").focus(); return; }
+  e.currentTarget.href = gcalUrl(next);
+  next.gcalAt = Date.now();
+  store.put(next); closeEditor();
+  toast("Google 캘린더에서 저장을 누르면 알림이 설정됩니다.");
 });
 document.getElementById("f-cancel").onclick = closeEditor;
 ov.addEventListener("mousedown", e => { if (e.target === ov) closeEditor(); });
