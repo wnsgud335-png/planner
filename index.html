@@ -139,9 +139,6 @@ tr.now td.istoday{box-shadow:inset 0 2px 0 var(--amber)}
 .chip .tm{font-family:var(--f-mono);font-size:11.5px;color:var(--cfg);white-space:nowrap;flex:none;letter-spacing:.02em}
 .chip .tt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .chip.done{opacity:.6}
-.cont{height:100%;min-height:26px;margin:-2px 0;background:var(--cbg);border-left:2px solid var(--cfg);opacity:.75;padding:3px 8px;font-size:11.5px;color:var(--muted);cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.cont span{opacity:.6}
-.cont.done{opacity:.4}
 .chip.done .tt{text-decoration:line-through}
 .chip.dragging{opacity:.3}
 .c-work{--cfg:var(--c-work);--cbg:var(--c-work-bg)}
@@ -286,14 +283,11 @@ tr.now td.istoday{box-shadow:inset 0 2px 0 var(--amber)}
   .grid.week .chip{padding:2px 3px;font-size:10.5px;line-height:1.25;border-left-width:2px;margin:0 0 1px;gap:0}
   .grid.week .chip .chk,.grid.week .chip .tm{display:none}
   .grid.week .chip .tt{white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:keep-all;overflow-wrap:anywhere}
-  .grid.week .cont{min-height:26px;padding:0;font-size:0}
-  .grid.week .cont span{display:none}
 
   /* 일간 */
   .grid.day th.t{width:52px;font-size:12px;padding:4px 6px}
   .grid.day .slot{height:42px}
   .grid.day .chip{font-size:14px}
-  .grid.day .cont{min-height:34px}
 
   /* 월간 */
   .month{min-width:0}
@@ -369,12 +363,11 @@ tr.now td.istoday{box-shadow:inset 0 2px 0 var(--amber)}
 :root[data-skin="blossom"] .sheet::before,:root[data-skin="blossom"] .sheet::after{display:none}
 :root[data-skin="blossom"] .tools button,:root[data-skin="blossom"] .skin-menu,:root[data-skin="blossom"] .acct-menu,:root[data-skin="blossom"] .toast,:root[data-skin="blossom"] .empty{border-radius:8px}
 :root[data-skin="blossom"] .brand .eyebrow{letter-spacing:.24em;font-weight:600}
-:root[data-skin="blossom"] .chip{box-shadow:none}
 :root[data-skin="blossom"] .mcell.today .num{color:#fff}
 :root[data-skin="blossom"] .progress .fill{box-shadow:none}
 :root[data-skin="blossom"] .sheet,:root[data-skin="blossom"] .quick,:root[data-skin="blossom"] .seg,:root[data-skin="blossom"] .modal{border-radius:14px}
 :root[data-skin="blossom"] .seg,:root[data-skin="blossom"] .btn,:root[data-skin="blossom"] .modal{clip-path:none}
-:root[data-skin="blossom"] .btn,:root[data-skin="blossom"] .icon-btn,:root[data-skin="blossom"] .seg button,:root[data-skin="blossom"] .chip,:root[data-skin="blossom"] .cats label,:root[data-skin="blossom"] .gcal,:root[data-skin="blossom"] .field input,:root[data-skin="blossom"] .field textarea,:root[data-skin="blossom"] .inline input,:root[data-skin="blossom"] .inline button{border-radius:8px}
+:root[data-skin="blossom"] .btn,:root[data-skin="blossom"] .icon-btn,:root[data-skin="blossom"] .seg button,:root[data-skin="blossom"] .cats label,:root[data-skin="blossom"] .gcal,:root[data-skin="blossom"] .field input,:root[data-skin="blossom"] .field textarea,:root[data-skin="blossom"] .inline input,:root[data-skin="blossom"] .inline button{border-radius:8px}
 :root[data-skin="blossom"] .scroll{border-radius:14px}
 
 /* 테마 선택 */
@@ -440,8 +433,6 @@ tr.now td.istoday{box-shadow:inset 0 2px 0 var(--amber)}
 :root[data-skin^="office"] .btn.ghost{background:none;color:var(--ink);border-color:var(--line-strong)}
 :root[data-skin^="office"] .btn.danger{background:none;color:var(--danger);border-color:var(--line-strong)}
 :root[data-skin^="office"] .icon-btn{font-family:var(--f-body);letter-spacing:0;font-size:13px;color:var(--ink)}
-:root[data-skin^="office"] .chip{box-shadow:none}
-:root[data-skin^="office"] .cont{opacity:.9}
 :root[data-skin^="office"] .progress .track{background:var(--line);border:0;height:6px;padding:0;border-radius:3px}
 :root[data-skin^="office"] .progress .fill{background:var(--cyan);box-shadow:none;border-radius:3px}
 :root[data-skin^="office"] .grid thead th.today b{color:#fff;background:var(--cyan);border-radius:5px;padding:0 6px;display:block;width:fit-content;margin:0 auto}
@@ -454,10 +445,45 @@ tr.now td.istoday{box-shadow:inset 0 2px 0 var(--amber)}
 :root[data-skin^="office"] .gcal-main{color:var(--cyan)}
 :root[data-skin^="office"] .quick label::before{content:none}
 :root[data-skin^="office"] .sheet,:root[data-skin^="office"] .quick,:root[data-skin^="office"] .seg,:root[data-skin^="office"] .modal,:root[data-skin^="office"] .scroll,:root[data-skin^="office"] .empty,:root[data-skin^="office"] .skin-menu,:root[data-skin^="office"] .acct-menu{border-radius:10px}
-:root[data-skin^="office"] .btn,:root[data-skin^="office"] .icon-btn,:root[data-skin^="office"] .seg button,:root[data-skin^="office"] .chip,:root[data-skin^="office"] .cats label,:root[data-skin^="office"] .gcal,:root[data-skin^="office"] .field input,:root[data-skin^="office"] .field textarea,:root[data-skin^="office"] .inline input,:root[data-skin^="office"] .inline button,:root[data-skin^="office"] .toast{border-radius:6px}
+:root[data-skin^="office"] .btn,:root[data-skin^="office"] .icon-btn,:root[data-skin^="office"] .seg button,:root[data-skin^="office"] .cats label,:root[data-skin^="office"] .gcal,:root[data-skin^="office"] .field input,:root[data-skin^="office"] .field textarea,:root[data-skin^="office"] .inline input,:root[data-skin^="office"] .inline button,:root[data-skin^="office"] .toast{border-radius:6px}
 :root[data-skin^="office"] .list .dot{transform:none;border-radius:50%;box-shadow:none}
 .skin-menu .sw.office{background:linear-gradient(135deg,#f3f4f6 40%,#2563eb 40% 60%,#ffffff 60%)}
 .skin-menu .sw.office-dark{background:linear-gradient(135deg,#15171c 40%,#60a0ff 40% 60%,#2c3139 60%)}
+
+/* ===== 일정 블록: 물방울처럼 둥글고 살짝 입체감 ===== */
+:root{--sheen-mix:84%; --chip-hi:rgba(255,255,255,.14); --chip-drop:rgba(0,0,0,.35)}
+:root[data-skin="blossom"],:root[data-skin="office"]{--sheen-mix:55%; --chip-hi:rgba(255,255,255,.85); --chip-drop:rgba(30,20,40,.10)}
+.chip{
+  border-left:0;border-radius:10px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--cbg) var(--sheen-mix),#fff) 0%,var(--cbg) 70%);
+  box-shadow:inset 3px 0 0 var(--cfg),inset 0 1px 0 var(--chip-hi),inset 0 -1px 0 rgba(0,0,0,.05),0 1px 2px var(--chip-drop),0 6px 14px -9px var(--cfg);
+  transition:transform .12s ease,box-shadow .12s ease,background .15s;
+}
+.chip:hover{transform:translateY(-1px);box-shadow:inset 3px 0 0 var(--cfg),inset 0 1px 0 var(--chip-hi),inset 0 -1px 0 rgba(0,0,0,.05),0 2px 4px var(--chip-drop),0 10px 18px -10px var(--cfg)}
+.chip.done{opacity:.55}
+td.slot{position:relative}
+.ev{position:absolute;z-index:1;top:1px;margin:0;
+  left:calc(3px + (100% - 6px) * var(--lane) / var(--lanes));
+  width:calc((100% - 6px) / var(--lanes) - 2px);
+  min-height:18px}
+.ev.tall{flex-direction:column;align-items:flex-start;gap:2px;padding-top:6px}
+.ev.tall .tt{white-space:normal;overflow-wrap:anywhere}
+.ev.tall .chk{position:absolute;top:6px;right:6px}
+.ev.tall:has(.chk) .tm,.ev.tall:has(.chk) .tt{padding-right:18px}
+.grid.day .ev.tall{padding:8px 12px}
+:root[data-skin="blossom"] .sheet,:root[data-skin="blossom"] .scroll,:root[data-skin^="office"] .sheet,:root[data-skin^="office"] .scroll{border-radius:18px}
+:root[data-skin="blossom"] .quick,:root[data-skin^="office"] .quick,:root[data-skin="blossom"] .seg,:root[data-skin^="office"] .seg{border-radius:14px}
+:root[data-skin="blossom"] .btn,:root[data-skin^="office"] .btn,:root[data-skin="blossom"] .icon-btn,:root[data-skin^="office"] .icon-btn,:root[data-skin="blossom"] .seg button,:root[data-skin^="office"] .seg button{border-radius:11px}
+:root[data-skin="blossom"] .btn:not(.ghost):not(.danger),:root[data-skin^="office"] .btn:not(.ghost):not(.danger){background:linear-gradient(180deg,color-mix(in srgb,var(--cyan) 82%,#fff),var(--cyan));box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 3px 8px -3px rgba(var(--glow-rgb),.55)}
+:root[data-skin="blossom"] .seg button[aria-pressed="true"],:root[data-skin^="office"] .seg button[aria-pressed="true"]{background:linear-gradient(180deg,color-mix(in srgb,var(--cyan) 82%,#fff),var(--cyan));box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 6px -2px rgba(var(--glow-rgb),.5)}
+@media (max-width:640px){
+  .chip{border-radius:7px}
+  .grid.week .ev{left:calc(1px + (100% - 2px) * var(--lane) / var(--lanes));width:calc((100% - 2px) / var(--lanes) - 1px);top:1px;padding:3px 3px 3px 5px}
+  .grid.week .ev.tall .tt{-webkit-line-clamp:unset;display:block;padding-right:0}
+  .grid.week .ev.tall{padding:4px 3px 3px 6px}
+}
+.ev.stacked{outline:1.5px solid var(--panel-solid)}
+@media (prefers-reduced-motion:reduce){.chip:hover{transform:none}}
 </style>
 </head>
 <body>
@@ -628,11 +654,49 @@ function chip(i, check = false){
   return `<div class="chip c-${esc(i.cat||"work")}${i.done?" done":""}" draggable="true" data-id="${esc(i.id)}" title="${esc(timeLabel(i)+" "+i.title)}">${check ? `<input type="checkbox" class="chk" data-id="${esc(i.id)}" aria-label="${esc(i.title)} 완료"${i.done?" checked":""}>` : ""}${i.start ? `<span class="tm">${esc(timeLabel(i))}</span>` : ""}<span class="tt">${esc(i.title)}</span></div>`;
 }
 const endSlot = i => i.end ? Math.ceil(toMin(i.end)/30) : slotOf(i.start) + 1;
-const covers = (i, x) => i.start && slotOf(i.start) < x && x < endSlot(i);
-const cont = i => `<div class="cont c-${esc(i.cat||"work")}${i.done?" done":""}" data-id="${esc(i.id)}" title="${esc(timeLabel(i)+" "+i.title)}"><span>${esc(i.title)}</span></div>`;
-function cellItems(list, x, check){
-  return list.filter(i => covers(i, x)).map(cont).join("") + list.filter(i => i.start && slotOf(i.start) === x).map(i => chip(i, check)).join("");
+// 겹치는 일정은 나란히 배치: 같은 시간대에 걸친 묶음마다 칸(lane)을 나눕니다
+function lanesFor(list){
+  const ev = list.filter(i => i.start).map(i => ({ i, s: slotOf(i.start), e: Math.max(endSlot(i), slotOf(i.start) + 1) })).sort((a,b) => a.s - b.s || b.e - a.e);
+  const out = {}; let group = [], ends = [], groupEnd = -1;
+  const flush = () => { group.forEach(c => out[c.i.id] = { lane: c.lane, lanes: ends.length }); group = []; ends = []; groupEnd = -1; };
+  for (const c of ev) {
+    if (group.length && c.s >= groupEnd) flush();
+    let l = ends.findIndex(e => e <= c.s);
+    if (l < 0) { l = ends.length; ends.push(c.e); } else ends[l] = c.e;
+    c.lane = l; group.push(c); groupEnd = Math.max(groupEnd, c.e);
+  }
+  flush();
+  return out;
 }
+function cellItems(list, x, check){
+  const starting = list.filter(i => i.start && slotOf(i.start) === x);
+  if (!starting.length) return "";
+  const lanes = lanesFor(list);
+  return starting.map(i => {
+    const span = Math.max(1, endSlot(i) - x), L = lanes[i.id] || { lane: 0, lanes: 1 };
+    return chip(i, check).replace('class="chip ', `style="--lane:${L.lane};--lanes:${L.lanes}" data-span="${span}" class="chip ev${span > 1 ? " tall" : ""} `);
+  }).join("");
+}
+// 블록 높이를 실제 표 줄 높이에 맞춥니다 (끝나는 칸의 아래선까지)
+function sizeBlocks(){
+  document.querySelectorAll("#main .ev").forEach(el => {
+    const tr = el.closest("tr"), rows = tr?.parentElement?.rows; if (!rows) return;
+    const end = rows[Math.min(tr.sectionRowIndex + (+el.dataset.span || 1) - 1, rows.length - 1)];
+    el.style.height = Math.max(18, end.getBoundingClientRect().bottom - tr.getBoundingClientRect().top - 3) + "px";
+    // 칸이 좁아 나란히 놓으면 글자가 세로로 쪼개질 때는, 살짝 비켜 겹쳐 쌓습니다
+    const lanes = +getComputedStyle(el).getPropertyValue("--lanes") || 1, lane = +getComputedStyle(el).getPropertyValue("--lane") || 0;
+    const cellW = el.parentElement.clientWidth;
+    if (lanes > 1 && cellW / lanes < 56) {
+      const shift = Math.min(12, cellW * 0.18);
+      el.style.left = (2 + lane * shift) + "px";
+      el.style.width = (cellW - 4 - lane * shift) + "px";
+      el.style.zIndex = 1 + lane;
+      el.classList.add("stacked");
+    } else { el.style.left = el.style.width = el.style.zIndex = ""; el.classList.remove("stacked"); }
+  });
+}
+let sizeTimer; addEventListener("resize", () => { clearTimeout(sizeTimer); sizeTimer = setTimeout(sizeBlocks, 80); });
+document.fonts?.ready?.then(() => sizeBlocks());
 function listBlock(title, arr, scope, date, placeholder){
   const done = arr.filter(i => i.done).length;
   return `<h3>${title}<span>${arr.length ? `${done}/${arr.length} 완료` : ""}</span></h3>
@@ -726,6 +790,7 @@ function render(){
 
   const active = document.activeElement?.id;
   document.getElementById("main").innerHTML = view === "day" ? renderDay() : view === "week" ? renderWeek() : renderMonth();
+  sizeBlocks();
   if (active && active.startsWith("in-")) document.getElementById(active)?.focus();
   try { if (location.hash.slice(1) !== view) history.replaceState(null, "", "#" + view); } catch(e){}
 }
