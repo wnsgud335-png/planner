@@ -387,6 +387,76 @@ tr.now td.istoday{box-shadow:inset 0 2px 0 var(--amber)}
 .skin-menu .sw.nebula{background:linear-gradient(135deg,#0c0616 40%,#ff8fd0 40% 60%,#d0a8ff 60%)}
 .skin-menu .sw.blossom{background:linear-gradient(135deg,#fff6f9 40%,#f19cbf 40% 60%,#cdb6ff 60%)}
 .skin-menu small{display:block;color:var(--muted);font-size:11.5px}
+
+/* ===== 테마: 오피스 (밝음 / 어두움) — 장식 없이 표와 글자만 또렷하게 ===== */
+:root[data-skin="office"]{
+  color-scheme:light;
+  --void:#f3f4f6; --panel:#ffffff; --panel-solid:#ffffff; --ink:#1f2328; --muted:#626b76;
+  --line:#e2e5e9; --line-strong:#cdd2d8; --row-hour:#d3d8de; --row-half:#eceef1; --cell:#ffffff;
+  --glow-rgb:37,99,235; --amber-rgb:37,99,235;
+  --neb1:transparent; --neb2:transparent; --scan:transparent;
+  --th-bg:#f6f7f9; --tt-bg:#f9fafb; --cell-half:#fbfbfc; --cell-untimed:#f5f6f8;
+  --today-cell:#f2f6ff; --today-cell-half:#edf2fe; --cell-out:#f5f6f8;
+  --field-bg:#ffffff; --overlay-bg:rgba(15,20,30,.35); --btn-ink:#ffffff;
+  --cyan:#2563eb; --amber:#2563eb; --tardis:#dbe5fb; --danger:#cf222e;
+  --cyan-soft:rgba(37,99,235,.07); --amber-soft:rgba(37,99,235,.07);
+  --c-work:#2563eb; --c-work-bg:#e8effd;
+  --c-personal:#1a7f37; --c-personal-bg:#e5f3e9;
+  --c-study:#7c4ddb; --c-study-bg:#f0eafc;
+  --c-health:#b85a06; --c-health-bg:#fcefe2;
+  --c-meet:#c8235f; --c-meet-bg:#fbe7ee;
+  --glow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.08);
+}
+:root[data-skin="office-dark"]{
+  --void:#15171c; --panel:#1d2027; --panel-solid:#21252d; --ink:#e7e9ec; --muted:#9ba2ad;
+  --line:#2c3139; --line-strong:#3b414c; --row-hour:#363c46; --row-half:#2a2f37; --cell:#1d2027;
+  --glow-rgb:96,160,255; --amber-rgb:96,160,255;
+  --neb1:transparent; --neb2:transparent; --scan:transparent;
+  --th-bg:#22262e; --tt-bg:#20232a; --cell-half:#1b1e24; --cell-untimed:#23272f;
+  --today-cell:#1d2636; --today-cell-half:#1b2332; --cell-out:#181a1f;
+  --field-bg:#16181d; --overlay-bg:rgba(0,0,0,.5); --btn-ink:#ffffff;
+  --cyan:#60a0ff; --amber:#60a0ff; --tardis:#24324a; --danger:#ff6b6b;
+  --cyan-soft:rgba(96,160,255,.1); --amber-soft:rgba(96,160,255,.1);
+  --c-work:#6ea8ff; --c-work-bg:rgba(110,168,255,.15);
+  --c-personal:#4cc38a; --c-personal-bg:rgba(76,195,138,.15);
+  --c-study:#b392f0; --c-study-bg:rgba(179,146,240,.16);
+  --c-health:#f0a35b; --c-health-bg:rgba(240,163,91,.15);
+  --c-meet:#f07aa8; --c-meet-bg:rgba(240,122,168,.15);
+  --glow:0 1px 2px rgba(0,0,0,.3);
+}
+:root[data-skin^="office"]{--f-disp:var(--f-body); --f-mono:var(--f-body)}
+:root[data-skin^="office"] *{text-shadow:none!important;backdrop-filter:none!important}
+:root[data-skin^="office"] body{background-image:none}
+:root[data-skin^="office"] body::after,:root[data-skin^="office"] #stars,:root[data-skin^="office"] .sheet::before,:root[data-skin^="office"] .sheet::after{display:none}
+:root[data-skin^="office"] .brand .eyebrow{letter-spacing:.12em;font-weight:600;font-size:10.5px;color:var(--muted)}
+:root[data-skin^="office"] .brand small::before{animation:none}
+:root[data-skin^="office"] .stardate{color:var(--muted);letter-spacing:0}
+:root[data-skin^="office"] .seg,:root[data-skin^="office"] .btn,:root[data-skin^="office"] .modal{clip-path:none}
+:root[data-skin^="office"] .seg button kbd{letter-spacing:.06em}
+:root[data-skin^="office"] .seg button[aria-pressed="true"]{background:var(--cyan);color:#fff;box-shadow:none}
+:root[data-skin^="office"] .btn{background:var(--cyan);border-color:var(--cyan)}
+:root[data-skin^="office"] .btn:hover,:root[data-skin^="office"] .icon-btn:hover,:root[data-skin^="office"] .gcal:hover{box-shadow:none;filter:brightness(1.05)}
+:root[data-skin^="office"] .btn.ghost{background:none;color:var(--ink);border-color:var(--line-strong)}
+:root[data-skin^="office"] .btn.danger{background:none;color:var(--danger);border-color:var(--line-strong)}
+:root[data-skin^="office"] .icon-btn{font-family:var(--f-body);letter-spacing:0;font-size:13px;color:var(--ink)}
+:root[data-skin^="office"] .chip{box-shadow:none}
+:root[data-skin^="office"] .cont{opacity:.9}
+:root[data-skin^="office"] .progress .track{background:var(--line);border:0;height:6px;padding:0;border-radius:3px}
+:root[data-skin^="office"] .progress .fill{background:var(--cyan);box-shadow:none;border-radius:3px}
+:root[data-skin^="office"] .grid thead th.today b{color:#fff;background:var(--cyan);border-radius:5px;padding:0 6px;display:block;width:fit-content;margin:0 auto}
+:root[data-skin^="office"] .mcell.today .num{color:#fff;background:var(--cyan);box-shadow:none}
+:root[data-skin^="office"] .mcell.sel{box-shadow:inset 0 0 0 2px var(--cyan)}
+:root[data-skin^="office"] tr.now td.istoday{box-shadow:inset 0 2px 0 var(--cyan)}
+:root[data-skin^="office"] .mhead div{font-family:var(--f-body);letter-spacing:0;font-size:12px}
+:root[data-skin^="office"] .empty p::before{content:none}
+:root[data-skin^="office"] .modal h2::before{content:none}
+:root[data-skin^="office"] .gcal-main{color:var(--cyan)}
+:root[data-skin^="office"] .quick label::before{content:none}
+:root[data-skin^="office"] .sheet,:root[data-skin^="office"] .quick,:root[data-skin^="office"] .seg,:root[data-skin^="office"] .modal,:root[data-skin^="office"] .scroll,:root[data-skin^="office"] .empty,:root[data-skin^="office"] .skin-menu,:root[data-skin^="office"] .acct-menu{border-radius:10px}
+:root[data-skin^="office"] .btn,:root[data-skin^="office"] .icon-btn,:root[data-skin^="office"] .seg button,:root[data-skin^="office"] .chip,:root[data-skin^="office"] .cats label,:root[data-skin^="office"] .gcal,:root[data-skin^="office"] .field input,:root[data-skin^="office"] .field textarea,:root[data-skin^="office"] .inline input,:root[data-skin^="office"] .inline button,:root[data-skin^="office"] .toast{border-radius:6px}
+:root[data-skin^="office"] .list .dot{transform:none;border-radius:50%;box-shadow:none}
+.skin-menu .sw.office{background:linear-gradient(135deg,#f3f4f6 40%,#2563eb 40% 60%,#ffffff 60%)}
+.skin-menu .sw.office-dark{background:linear-gradient(135deg,#15171c 40%,#60a0ff 40% 60%,#2c3139 60%)}
 </style>
 </head>
 <body>
@@ -401,6 +471,8 @@ tr.now td.istoday{box-shadow:inset 0 2px 0 var(--amber)}
         <button type="button" role="menuitemradio" data-skin="space"><span class="sw space"></span><span>우주<small>기본 · 시안과 앰버</small></span></button>
         <button type="button" role="menuitemradio" data-skin="nebula"><span class="sw nebula"></span><span>성운<small>핑크와 보라 우주</small></span></button>
         <button type="button" role="menuitemradio" data-skin="blossom"><span class="sw blossom"></span><span>벚꽃<small>밝은 파스텔 · 꽃잎</small></span></button>
+        <button type="button" role="menuitemradio" data-skin="office"><span class="sw office"></span><span>오피스 라이트<small>사무용 · 깔끔한 흰 화면</small></span></button>
+        <button type="button" role="menuitemradio" data-skin="office-dark"><span class="sw office-dark"></span><span>오피스 다크<small>사무용 · 차분한 어두운 화면</small></span></button>
       </div>
     </div>
     <div class="acct">
@@ -867,7 +939,7 @@ document.getElementById("legend").innerHTML = Object.entries(CATS).map(([k,v]) =
 /* stardate + starfield */
 (function(){
   const sd = document.getElementById("stardate");
-  const tick = () => { const n = new Date(), doy = Math.floor((n - new Date(n.getFullYear(),0,0))/864e5); sd.textContent = `${document.documentElement.dataset.skin === "blossom" ? "TODAY" : "STARDATE"} ${pad(n.getMonth()+1)}.${pad(n.getDate())}(${doy}일차) · ${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`; };
+  const tick = () => { const n = new Date(), doy = Math.floor((n - new Date(n.getFullYear(),0,0))/864e5); const sk = document.documentElement.dataset.skin || "space"; sd.textContent = `${sk === "blossom" ? "TODAY " : sk.startsWith("office") ? "" : "STARDATE "}${pad(n.getMonth()+1)}.${pad(n.getDate())}(${doy}일차) · ${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`; };
   tick(); setInterval(tick, 1000);
   const cv = document.getElementById("stars"), ctx = cv.getContext("2d");
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -890,9 +962,12 @@ document.getElementById("legend").innerHTML = Object.entries(CATS).map(([k,v]) =
       ctx.restore();
     }
   };
+  let running = false;
   const draw = t => {
     ctx.clearRect(0,0,W,H);
     const skin = document.documentElement.dataset.skin || "space";
+    if (skin.startsWith("office")) { running = false; return; }
+    running = !still;
     if (skin === "blossom") { if (!petals.length) makePetals(); drawPetals(t); if (!still) requestAnimationFrame(draw); return; }
     for (const s of stars) {
       if (!still) { s.x -= (0.04 + s.z*0.35); if (s.x < 0) { s.x = W; s.y = Math.random()*H; } }
@@ -903,17 +978,17 @@ document.getElementById("legend").innerHTML = Object.entries(CATS).map(([k,v]) =
     if (!still) requestAnimationFrame(draw);
   };
   resize(); addEventListener("resize", () => { resize(); petals = []; }); requestAnimationFrame(draw);
-  window.redrawBackground = () => { if (still) requestAnimationFrame(draw); };
+  window.redrawBackground = () => { if (!running) requestAnimationFrame(draw); };
 })();
 
 /* theme */
-const SKINS = { space: { eyebrow: "MISSION LOG", color: "#03050c" }, nebula: { eyebrow: "NEBULA LOG", color: "#0c0616" }, blossom: { eyebrow: "BLOSSOM DIARY", color: "#fff6f9" } };
+const SKINS = { space: { eyebrow: "MISSION LOG", color: "#03050c" }, nebula: { eyebrow: "NEBULA LOG", color: "#0c0616" }, blossom: { eyebrow: "BLOSSOM DIARY", color: "#fff6f9" }, office: { eyebrow: "SCHEDULE", color: "#f3f4f6", light: true }, "office-dark": { eyebrow: "SCHEDULE", color: "#15171c" } };
 function applySkin(name){
   if (!SKINS[name]) name = "space";
   if (name === "space") delete document.documentElement.dataset.skin; else document.documentElement.dataset.skin = name;
   document.querySelector(".brand .eyebrow").textContent = SKINS[name].eyebrow;
   document.querySelector('meta[name="theme-color"]').setAttribute("content", SKINS[name].color);
-  document.querySelector('meta[name="color-scheme"]').setAttribute("content", name === "blossom" ? "light" : "dark");
+  document.querySelector('meta[name="color-scheme"]').setAttribute("content", name === "blossom" || SKINS[name].light ? "light" : "dark");
   document.querySelectorAll("#skin-menu [data-skin]").forEach(b => b.setAttribute("aria-checked", String(b.dataset.skin === name)));
   try { localStorage.setItem("planner-skin", name); } catch(e){}
   window.redrawBackground?.();
