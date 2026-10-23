@@ -330,7 +330,7 @@ tr.now td.istoday{box-shadow:inset 0 2px 0 var(--amber)}
   --c-work:#9db8ff; --c-work-bg:rgba(157,184,255,.2);
   --c-personal:#7ff0c8; --c-personal-bg:rgba(127,240,200,.17);
   --c-study:#d0a8ff; --c-study-bg:rgba(208,168,255,.22);
-  --c-health:#ffd682; --c-health-bg:rgba(255,214,130,.2);
+  --c-health:#ff9d7e; --c-health-bg:rgba(255,157,126,.2);
   --c-meet:#ff8fd0; --c-meet-bg:rgba(255,143,208,.22);
   --glow:0 0 0 1px var(--line-strong),0 0 24px rgba(255,143,208,.1),inset 0 0 40px rgba(122,63,176,.18);
 }
@@ -471,8 +471,12 @@ td.slot{position:relative}
 .ev.tall{flex-direction:column;align-items:flex-start;gap:2px;padding-top:6px;--tint:var(--tint-tall,18%)}
 :root[data-skin="blossom"],:root[data-skin="office"]{--tint-tall:11%}
 .ev.tall .tt{white-space:normal;overflow-wrap:anywhere}
-.ev.tall .chk{position:absolute;top:6px;right:6px}
-.ev.tall:has(.chk) .tm,.ev.tall:has(.chk) .tt{padding-right:18px}
+.ev-head{position:relative;display:flex;flex-direction:column;gap:2px;width:100%;will-change:transform}
+.ev-head .chk{position:absolute;top:0;right:0}
+.ev-head:has(.chk) .tm,.ev-head:has(.chk) .tt{padding-right:20px}
+.ev.big .tt{font-size:15px;font-weight:700;line-height:1.3}
+.grid.day .ev.big .tt{font-size:17px}
+.ev .dur{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 .grid.day .ev.tall{padding:8px 12px}
 :root[data-skin="blossom"] .sheet,:root[data-skin="blossom"] .scroll,:root[data-skin^="office"] .sheet,:root[data-skin^="office"] .scroll{border-radius:18px}
 :root[data-skin="blossom"] .quick,:root[data-skin^="office"] .quick,:root[data-skin="blossom"] .seg,:root[data-skin^="office"] .seg{border-radius:14px}
@@ -483,6 +487,8 @@ td.slot{position:relative}
   .chip{border-radius:7px}
   .grid.week .ev{left:calc(1px + (100% - 2px) * var(--lane) / var(--lanes));width:calc((100% - 2px) / var(--lanes) - 1px);top:1px;padding:3px 3px 3px 5px}
   .grid.week .ev.tall .tt{-webkit-line-clamp:unset;display:block;padding-right:0}
+  .grid.week .ev.big .tt{font-size:11.5px;font-weight:700}
+  .grid.week .ev .dur{font-size:9.5px}
   .grid.week .ev.tall{padding:4px 3px 3px 6px}
 }
 .ev.stacked{outline:1.5px solid var(--panel-solid)}
@@ -678,9 +684,25 @@ function cellItems(list, x, check){
   const lanes = lanesFor(list);
   return starting.map(i => {
     const span = Math.max(1, endSlot(i) - x), L = lanes[i.id] || { lane: 0, lanes: 1 };
-    return chip(i, check).replace('class="chip ', `style="--lane:${L.lane};--lanes:${L.lanes}" data-span="${span}" class="chip ev${span > 1 ? " tall" : ""} `);
+    const pos = `style="--lane:${L.lane};--lanes:${L.lanes}" data-span="${span}"`;
+    if (span === 1) return chip(i, check).replace('class="chip ', `${pos} class="chip ev `);
+    // 긴 일정: 제목 묶음(ev-head)은 스크롤하면 블록 안에서 따라 내려옵니다
+    const mins = (i.end ? toMin(i.end) : toMin(i.start) + 30) - toMin(i.start);
+    const dur = mins >= 60 ? `${Math.floor(mins/60)}시간${mins % 60 ? ` ${mins % 60}분` : ""}` : `${mins}분`;
+    return `<div ${pos} class="chip ev tall${span >= 4 ? " big" : ""} c-${esc(i.cat||"work")}${i.done?" done":""}" draggable="true" data-id="${esc(i.id)}" title="${esc(timeLabel(i)+" "+i.title)}"><div class="ev-head">${check ? `<input type="checkbox" class="chk" data-id="${esc(i.id)}" aria-label="${esc(i.title)} 완료"${i.done?" checked":""}>` : ""}<span class="tm">${esc(timeLabel(i))}</span><span class="tt">${esc(i.title)}</span>${span >= 4 ? `<span class="dur">${dur}</span>` : ""}</div></div>`;
   }).join("");
 }
+function followHeads(){
+  const top = 10;
+  document.querySelectorAll("#main .ev.tall").forEach(el => {
+    const head = el.firstElementChild; if (!head) return;
+    const r = el.getBoundingClientRect();
+    const shift = Math.max(0, Math.min(top - r.top, el.clientHeight - head.offsetHeight - 14));
+    head.style.transform = shift > 0 ? `translateY(${shift}px)` : "";
+  });
+}
+let headTick = false;
+addEventListener("scroll", () => { if (headTick) return; headTick = true; requestAnimationFrame(() => { headTick = false; followHeads(); }); }, { passive: true });
 // 블록 높이를 실제 표 줄 높이에 맞춥니다 (끝나는 칸의 아래선까지)
 function sizeBlocks(){
   document.querySelectorAll("#main .ev").forEach(el => {
@@ -699,7 +721,7 @@ function sizeBlocks(){
     } else { el.style.left = el.style.width = el.style.zIndex = ""; el.classList.remove("stacked"); }
   });
 }
-let sizeTimer; addEventListener("resize", () => { clearTimeout(sizeTimer); sizeTimer = setTimeout(sizeBlocks, 80); });
+let sizeTimer; addEventListener("resize", () => { clearTimeout(sizeTimer); sizeTimer = setTimeout(() => { sizeBlocks(); followHeads(); }, 80); });
 document.fonts?.ready?.then(() => sizeBlocks());
 function listBlock(title, arr, scope, date, placeholder){
   const done = arr.filter(i => i.done).length;
@@ -794,7 +816,7 @@ function render(){
 
   const active = document.activeElement?.id;
   document.getElementById("main").innerHTML = view === "day" ? renderDay() : view === "week" ? renderWeek() : renderMonth();
-  sizeBlocks();
+  sizeBlocks(); followHeads();
   if (active && active.startsWith("in-")) document.getElementById(active)?.focus();
   try { if (location.hash.slice(1) !== view) history.replaceState(null, "", "#" + view); } catch(e){}
 }
