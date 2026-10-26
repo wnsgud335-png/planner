@@ -494,6 +494,25 @@ td.slot{position:relative}
 .ev.stacked{outline:1.5px solid var(--panel-solid)}
 @media (prefers-reduced-motion:reduce){.chip:hover{transform:none}}
 #main{display:flex;flex-direction:column;gap:14px}
+
+/* ===== 공휴일 ===== */
+:root{--holiday:#ff6b7d}
+:root[data-skin="nebula"]{--holiday:#ff7a96}
+:root[data-skin="blossom"]{--holiday:#d0384a}
+:root[data-skin="office"]{--holiday:#cf222e}
+:root[data-skin="office-dark"]{--holiday:#ff6b6b}
+.grid thead th.hol,.grid thead th.hol b,.mcell.hol .num{color:var(--holiday)}
+.hol-label{color:var(--holiday)}
+.hname{display:block;font-size:10.5px;font-weight:500;line-height:1.2;color:var(--holiday);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--f-body);letter-spacing:0}
+.mcell .hname{padding:0 4px;margin-top:-1px}
+.grid tbody td.hol:not(.istoday){background:color-mix(in srgb,var(--holiday) 6%,var(--cell))}
+.grid tbody tr.hh>td.hol:not(.istoday){background:color-mix(in srgb,var(--holiday) 5%,var(--cell-half))}
+.mcell.hol:not(.out){background:color-mix(in srgb,var(--holiday) 6%,transparent)}
+@media (max-width:640px){
+  .hname{font-size:8.5px}
+  .grid.week thead th .hname{padding:0 1px}
+  .mcell .hname{text-align:center;padding:0}
+}
 </style>
 </head>
 <body>
@@ -615,6 +634,23 @@ const CATS = { work:"업무", personal:"개인", study:"공부", health:"운동"
 const CAT_BY_NAME = Object.fromEntries(Object.entries(CATS).map(([k,v]) => [v,k]));
 const WD = ["월","화","수","목","금","토","일"];
 const LS_KEY = "schedule-planner-v1";
+// 대한민국 공휴일 (대체공휴일 포함). 정부가 임시공휴일을 새로 정하면 여기에 한 줄 추가하면 됩니다.
+const HOLIDAYS = {
+  "2025-01-01":"신정","2025-01-27":"임시공휴일","2025-01-28":"설날 연휴","2025-01-29":"설날","2025-01-30":"설날 연휴",
+  "2025-03-01":"삼일절","2025-03-03":"대체공휴일","2025-05-05":"어린이날·부처님오신날","2025-05-06":"대체공휴일",
+  "2025-06-03":"대통령 선거일","2025-06-06":"현충일","2025-08-15":"광복절","2025-10-03":"개천절",
+  "2025-10-05":"추석 연휴","2025-10-06":"추석","2025-10-07":"추석 연휴","2025-10-08":"대체공휴일","2025-10-09":"한글날","2025-12-25":"성탄절",
+  "2026-01-01":"신정","2026-02-16":"설날 연휴","2026-02-17":"설날","2026-02-18":"설날 연휴",
+  "2026-03-01":"삼일절","2026-03-02":"대체공휴일","2026-05-05":"어린이날","2026-05-24":"부처님오신날","2026-05-25":"대체공휴일",
+  "2026-06-03":"지방선거일","2026-06-06":"현충일","2026-08-15":"광복절","2026-08-17":"대체공휴일",
+  "2026-09-24":"추석 연휴","2026-09-25":"추석","2026-09-26":"추석 연휴","2026-10-03":"개천절","2026-10-05":"대체공휴일",
+  "2026-10-09":"한글날","2026-12-25":"성탄절",
+  "2027-01-01":"신정","2027-02-06":"설날 연휴","2027-02-07":"설날","2027-02-08":"설날 연휴","2027-02-09":"대체공휴일",
+  "2027-03-01":"삼일절","2027-05-05":"어린이날","2027-05-13":"부처님오신날","2027-06-06":"현충일",
+  "2027-08-15":"광복절","2027-08-16":"대체공휴일","2027-09-14":"추석 연휴","2027-09-15":"추석","2027-09-16":"추석 연휴",
+  "2027-10-03":"개천절","2027-10-04":"대체공휴일","2027-10-09":"한글날","2027-10-11":"대체공휴일","2027-12-25":"성탄절","2027-12-27":"대체공휴일"
+};
+const holidayOf = d => HOLIDAYS[d] || "";
 
 const pad = n => String(n).padStart(2,"0");
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -756,9 +792,9 @@ function renderDay(){
 function renderWeek(){
   const mon = mondayOf(cursor), t = todayISO(), ns = nowSlot();
   const days = [...Array(7)].map((_, k) => iso(addDays(mon, k)));
-  const head = `<tr><th class="t"></th>${days.map((d,k) => { const dt = parseISO(d); return `<th class="dhead${d===t?" today":""}${k===6?" sun":""}" data-goto="${d}" title="일간 보기로 이동">${WD[k]}<b>${dt.getDate()}</b></th>`; }).join("")}</tr>`;
-  const untimedRow = `<tr><th class="t">할 일</th>${days.map(d => `<td class="slot untimed${d===t?" istoday":""}" data-drop data-date="${d}">${dayItems(d).filter(i => !i.start).map(i => chip(i, true)).join("")}</td>`).join("")}</tr>`;
-  const rows = slotRange(days).map(x => `<tr class="${x%2?"hh":"hr"}${days.includes(t) && x===ns ? " now" : ""}"><th class="t">${slotLabel(x)}</th>${days.map(d => `<td class="slot${d===t?" istoday":""}" data-drop data-date="${d}" data-slot="${x}">${cellItems(dayItems(d), x, true)}</td>`).join("")}</tr>`).join("");
+  const head = `<tr><th class="t"></th>${days.map((d,k) => { const dt = parseISO(d); const hn = holidayOf(d); return `<th class="dhead${d===t?" today":""}${k===6?" sun":""}${hn?" hol":""}" data-goto="${d}" title="${hn ? esc(hn) + " · " : ""}일간 보기로 이동">${WD[k]}<b>${dt.getDate()}</b>${hn ? `<small class="hname">${esc(hn)}</small>` : ""}</th>`; }).join("")}</tr>`;
+  const untimedRow = `<tr><th class="t">할 일</th>${days.map(d => `<td class="slot untimed${d===t?" istoday":""}${holidayOf(d)?" hol":""}" data-drop data-date="${d}">${dayItems(d).filter(i => !i.start).map(i => chip(i, true)).join("")}</td>`).join("")}</tr>`;
+  const rows = slotRange(days).map(x => `<tr class="${x%2?"hh":"hr"}${days.includes(t) && x===ns ? " now" : ""}"><th class="t">${slotLabel(x)}</th>${days.map(d => `<td class="slot${d===t?" istoday":""}${holidayOf(d)?" hol":""}" data-drop data-date="${d}" data-slot="${x}">${cellItems(dayItems(d), x, true)}</td>`).join("")}</tr>`).join("");
   const wk = iso(mon), mk = monthKey(cursor);
   return `<section class="sheet"><div class="scroll"><table class="grid week"><thead>${head}</thead><tbody>${untimedRow}${rows}</tbody></table></div></section>
   <div class="below">
@@ -775,8 +811,9 @@ function renderMonth(){
     if (w > 3 && ws.getMonth() !== first.getMonth()) break;
     weeks.push(`<div class="mrow">${[...Array(7)].map((_, k) => {
       const dt = addDays(ws, k), d = iso(dt), arr = dayItems(d), shown = arr.slice(0, 3);
-      const cls = ["mcell", dt.getMonth() !== first.getMonth() && "out", d === t && "today", k === 6 && "sun", d === sel && "sel"].filter(Boolean).join(" ");
-      return `<div class="${cls}" data-drop data-date="${d}"><button type="button" class="num" data-goto="${d}" aria-label="${dt.getMonth()+1}월 ${dt.getDate()}일 일간 보기">${dt.getDate()}</button>${shown.map(i => chip(i)).join("")}${arr.length > 3 ? `<button type="button" class="more" data-goto="${d}">+${arr.length-3}개 더</button>` : ""}</div>`;
+      const hn = holidayOf(d);
+      const cls = ["mcell", dt.getMonth() !== first.getMonth() && "out", d === t && "today", k === 6 && "sun", hn && "hol", d === sel && "sel"].filter(Boolean).join(" ");
+      return `<div class="${cls}" data-drop data-date="${d}"><button type="button" class="num" data-goto="${d}" aria-label="${dt.getMonth()+1}월 ${dt.getDate()}일 일간 보기">${dt.getDate()}</button>${hn ? `<span class="hname" title="${esc(hn)}">${esc(hn)}</span>` : ""}${shown.map(i => chip(i)).join("")}${arr.length > 3 ? `<button type="button" class="more" data-goto="${d}">+${arr.length-3}개 더</button>` : ""}</div>`;
     }).join("")}</div>`);
   }
   const mk = monthKey(cursor), wk = iso(mondayOf(cursor));
@@ -797,7 +834,7 @@ function render(){
   document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.view === view)));
   const y = cursor.getFullYear(), m = cursor.getMonth()+1;
   let label;
-  if (view === "day") label = `${y}년 ${m}월 ${cursor.getDate()}일 <span class="sub">${WD[wdIdx(cursor)]}요일${iso(cursor)===todayISO()?" · 오늘":""}</span>`;
+  if (view === "day") label = `${y}년 ${m}월 ${cursor.getDate()}일 <span class="sub">${WD[wdIdx(cursor)]}요일${iso(cursor)===todayISO()?" · 오늘":""}${holidayOf(iso(cursor)) ? ` · <span class="hol-label">${esc(holidayOf(iso(cursor)))}</span>` : ""}</span>`;
   else if (view === "week") { const a = mondayOf(cursor), b = addDays(a, 6); label = `${a.getFullYear()}년 ${a.getMonth()+1}월 ${a.getDate()}일 – ${b.getMonth()!==a.getMonth()?`${b.getMonth()+1}월 `:""}${b.getDate()}일 <span class="sub">${isoWeek(a)}주차</span>`; }
   else label = `${y}년 ${m}월`;
   document.getElementById("period").innerHTML = label;
