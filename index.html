@@ -513,6 +513,9 @@ td.slot{position:relative}
   .grid.week thead th .hname{padding:0 1px}
   .mcell .hname{text-align:center;padding:0}
 }
+.remind-hint{font-size:12px;color:var(--muted);min-height:1em}
+#push-btn{width:100%}
+.chip.has-remind .tm::after{content:" ◷";font-size:.95em}
 </style>
 </head>
 <body>
@@ -536,6 +539,8 @@ td.slot{position:relative}
       <div class="acct-menu" id="account-menu" hidden>
         <div id="account-email"></div>
         <div class="acct-note">모든 기기에서 이 계정으로 로그인하면 같은 일정이 보입니다.</div>
+        <button type="button" class="btn" id="push-btn" hidden>이 기기에서 알림 받기</button>
+        <div class="acct-note" id="push-note"></div>
         <button type="button" class="btn ghost" id="logout">로그아웃</button>
       </div>
     </div>
@@ -594,6 +599,19 @@ td.slot{position:relative}
       <div class="field"><label for="f-date">날짜</label><input type="date" id="f-date"></div>
       <div class="field"><label for="f-start">시작</label><input type="time" id="f-start" step="300"></div>
       <div class="field"><label for="f-end">종료</label><input type="time" id="f-end" step="300"></div>
+    </div>
+    <div class="field" id="remind-row">
+      <label for="f-remind">푸시 알림</label>
+      <select id="f-remind">
+        <option value="">없음</option>
+        <option value="0">시작할 때</option>
+        <option value="5">5분 전</option>
+        <option value="10">10분 전</option>
+        <option value="30">30분 전</option>
+        <option value="60">1시간 전</option>
+        <option value="1440">하루 전</option>
+      </select>
+      <small class="remind-hint" id="remind-hint"></small>
     </div>
     <div class="field" id="scope-note" hidden><label>기간</label><div id="scope-text"></div></div>
     <div class="field"><label>분류</label><div class="cats" id="f-cats"></div></div>
@@ -697,7 +715,7 @@ const goalItems = (scope, date) => sortItems([...items.values()].filter(i => i.s
 const timeLabel = i => i.start ? (i.end ? `${i.start}–${i.end}` : i.start) : "";
 
 function chip(i, check = false){
-  return `<div class="chip c-${esc(i.cat||"work")}${i.done?" done":""}" draggable="true" data-id="${esc(i.id)}" title="${esc(timeLabel(i)+" "+i.title)}">${check ? `<input type="checkbox" class="chk" data-id="${esc(i.id)}" aria-label="${esc(i.title)} 완료"${i.done?" checked":""}>` : ""}${i.start ? `<span class="tm">${esc(timeLabel(i))}</span>` : ""}<span class="tt">${esc(i.title)}</span></div>`;
+  return `<div class="chip c-${esc(i.cat||"work")}${i.done?" done":""}${i.remind != null && i.start ? " has-remind" : ""}" draggable="true" data-id="${esc(i.id)}" title="${esc(timeLabel(i)+" "+i.title)}">${check ? `<input type="checkbox" class="chk" data-id="${esc(i.id)}" aria-label="${esc(i.title)} 완료"${i.done?" checked":""}>` : ""}${i.start ? `<span class="tm">${esc(timeLabel(i))}</span>` : ""}<span class="tt">${esc(i.title)}</span></div>`;
 }
 const endSlot = i => i.end ? Math.ceil(toMin(i.end)/30) : slotOf(i.start) + 1;
 // 겹치는 일정은 나란히 배치: 같은 시간대에 걸친 묶음마다 칸(lane)을 나눕니다
@@ -725,7 +743,7 @@ function cellItems(list, x, check){
     // 긴 일정: 제목 묶음(ev-head)은 스크롤하면 블록 안에서 따라 내려옵니다
     const mins = (i.end ? toMin(i.end) : toMin(i.start) + 30) - toMin(i.start);
     const dur = mins >= 60 ? `${Math.floor(mins/60)}시간${mins % 60 ? ` ${mins % 60}분` : ""}` : `${mins}분`;
-    return `<div ${pos} class="chip ev tall${span >= 4 ? " big" : ""} c-${esc(i.cat||"work")}${i.done?" done":""}" draggable="true" data-id="${esc(i.id)}" title="${esc(timeLabel(i)+" "+i.title)}"><div class="ev-head">${check ? `<input type="checkbox" class="chk" data-id="${esc(i.id)}" aria-label="${esc(i.title)} 완료"${i.done?" checked":""}>` : ""}<span class="tm">${esc(timeLabel(i))}</span><span class="tt">${esc(i.title)}</span>${span >= 4 ? `<span class="dur">${dur}</span>` : ""}</div></div>`;
+    return `<div ${pos} class="chip ev tall${span >= 4 ? " big" : ""}${i.remind != null ? " has-remind" : ""} c-${esc(i.cat||"work")}${i.done?" done":""}" draggable="true" data-id="${esc(i.id)}" title="${esc(timeLabel(i)+" "+i.title)}"><div class="ev-head">${check ? `<input type="checkbox" class="chk" data-id="${esc(i.id)}" aria-label="${esc(i.title)} 완료"${i.done?" checked":""}>` : ""}<span class="tm">${esc(timeLabel(i))}</span><span class="tt">${esc(i.title)}</span>${span >= 4 ? `<span class="dur">${dur}</span>` : ""}</div></div>`;
   }).join("");
 }
 function followHeads(){
@@ -875,6 +893,9 @@ function openEditor(item, isNew){
   document.getElementById("f-done").checked = !!item.done;
   document.getElementById("cat-" + (item.cat || "work")).checked = true;
   document.getElementById("time-row").hidden = goal;
+  document.getElementById("remind-row").hidden = goal;
+  document.getElementById("f-remind").value = item.remind == null ? "" : String(item.remind);
+  updateRemindHint();
   document.getElementById("scope-note").hidden = !goal;
   if (goal) { const d = parseISO(item.date); document.getElementById("scope-text").textContent = item.scope === "week" ? `${d.getMonth()+1}월 ${d.getDate()}일 주 (${isoWeek(d)}주차)` : `${d.getFullYear()}년 ${d.getMonth()+1}월`; }
   document.getElementById("f-gcal").hidden = goal;
@@ -884,6 +905,16 @@ function openEditor(item, isNew){
   setTimeout(() => document.getElementById("f-title").focus(), 0);
 }
 function closeEditor(){ ov.hidden = true; editing = null; }
+function updateRemindHint(){
+  const hint = document.getElementById("remind-hint"), on = document.getElementById("f-remind").value !== "";
+  const hasStart = !!document.getElementById("f-start").value;
+  hint.textContent = !on ? "" : !hasStart ? "시작 시간이 있어야 알림을 보낼 수 있어요."
+    : !window.cloudUser ? "로그인하면 폰으로 알림을 받을 수 있어요."
+    : !window.pushEnabled ? "오른쪽 위 계정 메뉴에서 '이 기기에서 알림 받기'를 켜 주세요."
+    : "정해진 시간에 이 기기로 알림이 옵니다.";
+}
+document.getElementById("f-remind").addEventListener("change", updateRemindHint);
+document.getElementById("f-start").addEventListener("input", updateRemindHint);
 
 function readEditor(){
   const title = document.getElementById("f-title").value.trim(); if (!title) return null;
@@ -897,6 +928,8 @@ function readEditor(){
     next.start = document.getElementById("f-start").value || "";
     next.end = next.start ? (document.getElementById("f-end").value || "") : "";
     if (next.end && toMin(next.end) <= toMin(next.start)) next.end = "";
+    const r = document.getElementById("f-remind").value;
+    next.remind = r === "" || !next.start ? null : +r;
   }
   next.updated = Date.now();
   return next;
