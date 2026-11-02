@@ -1,5 +1,5 @@
 // 로그인과 클라우드 동기화. 로그인하면 users/{uid}/items 에 일정이 저장되고 모든 기기에서 같은 일정이 보입니다.
-import { FIREBASE_CONFIG } from "./firebase-config.js";
+import { FIREBASE_CONFIG, VAPID_KEY } from "./firebase-config.js";
 
 const SDK = "https://www.gstatic.com/firebasejs/10.12.2";
 const $ = id => document.getElementById(id);
@@ -74,12 +74,51 @@ async function start(){
   $("logout").onclick = async () => { $("account-menu").hidden = true; await A.signOut(auth); toast("로그아웃했습니다."); };
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !ov.hidden) close(); });
 
+  /* ----- push notifications ----- */
+  // 이 기기의 푸시 주소(토큰)를 users/{uid}/devices 에 저장해 두면 알림 서버가 그곳으로 보냅니다.
+  let M = null, messaging = null;
+  const pushCapable = () => "Notification" in window && "serviceWorker" in navigator && "PushManager" in window;
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  const showPush = (btnText, note) => { const b = $("push-btn"); b.hidden = !btnText; if (btnText) b.textContent = btnText; $("push-note").textContent = note || ""; };
+  async function registerDevice(user){
+    if (!VAPID_KEY) throw new Error("no-vapid");
+    if (!M) { M = await import(`${SDK}/firebase-messaging.js`); if (!(await M.isSupported())) throw new Error("unsupported"); messaging = M.getMessaging(app); }
+    const token = await M.getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: await navigator.serviceWorker.ready });
+    const hash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token)))).slice(0, 16).map(b => b.toString(16).padStart(2, "0")).join("");
+    await F.setDoc(F.doc(db, "users", user.uid, "devices", hash), { token, updated: Date.now(), ua: navigator.userAgent.slice(0, 120) });
+    window.pushEnabled = true;
+  }
+  function setupPush(user){
+    window.pushEnabled = false;
+    if (!VAPID_KEY) { showPush("", ""); return; }
+    if (!pushCapable()) { showPush("", isIOS && !standalone ? "아이폰은 홈 화면에 설치한 앱에서 알림을 켤 수 있어요." : "이 브라우저는 알림을 지원하지 않아요."); return; }
+    if (Notification.permission === "granted") {
+      showPush("", "이 기기로 알림이 옵니다.");
+      registerDevice(user).catch(() => showPush("알림 다시 연결하기", "알림 연결에 실패했어요. 다시 눌러 주세요."));
+    } else if (Notification.permission === "denied") {
+      showPush("", "알림이 차단돼 있어요. 휴대폰 설정에서 이 앱의 알림을 허용해 주세요.");
+    } else showPush("이 기기에서 알림 받기", "일정에 알림을 설정하면 이 기기로 알려 드려요.");
+  }
+  $("push-btn").onclick = async () => {
+    const user = auth.currentUser; if (!user) return;
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") { setupPush(user); return; }
+      showPush("", "연결하는 중…");
+      await registerDevice(user);
+      showPush("", "이 기기로 알림이 옵니다.");
+      toast("알림을 켰어요. 일정 창에서 알림 시간을 골라 보세요.");
+    } catch(e){ showPush("알림 다시 연결하기", "알림 연결에 실패했어요. 인터넷 연결을 확인하고 다시 눌러 주세요."); }
+  };
+
   /* ----- sync ----- */
   A.onAuthStateChanged(auth, async user => {
     if (unsub) { unsub(); unsub = null; }
     window.cloudUser = user || null;
     $("account-menu").hidden = true;
     if (!user) {
+      $("push-btn").hidden = true; $("push-note").textContent = ""; window.pushEnabled = false;
       accountBtn.textContent = "로그인";
       items = new Map(); store = null; useLocal(); render();
       return;
@@ -103,12 +142,27 @@ async function start(){
       } catch(e){ fail(); }
     }
 
+    // 푸시 알림 예약: reminders/{uid_일정id} 에 보낼 시각(at)을 적어 두면 알림 서버가 매분 확인해 보냅니다.
+    const remRef = id => F.doc(db, "reminders", `${user.uid}_${id}`);
+    const REMIND_LABEL = { 0: "지금 시작", 5: "5분 뒤 시작", 10: "10분 뒤 시작", 30: "30분 뒤 시작", 60: "1시간 뒤 시작", 1440: "내일 이 시간" };
+    const syncReminder = i => {
+      let at = null;
+      if (i.scope === "day" && i.start && i.remind != null && !i.done) {
+        const [y, m, d] = i.date.split("-").map(Number), [h, mi] = i.start.split(":").map(Number);
+        at = new Date(y, m - 1, d, h, mi).getTime() - i.remind * 60000;
+      }
+      if (at && at > Date.now() - 60000) {
+        F.setDoc(remRef(i.id), { uid: user.uid, itemId: i.id, at, title: i.title,
+          body: `${i.start}${i.end ? "–" + i.end : ""} · ${REMIND_LABEL[i.remind] || "곧 시작"}` }).catch(() => {});
+      } else F.deleteDoc(remRef(i.id)).catch(() => {});
+    };
     const cloud = {
       mode: "cloud",
       save(){},
-      async put(i){ items.set(i.id, i); render(); F.setDoc(ref(i.id), i).catch(fail); },
-      async del(id){ items.delete(id); render(); F.deleteDoc(ref(id)).catch(fail); }
+      async put(i){ items.set(i.id, i); render(); F.setDoc(ref(i.id), i).catch(fail); syncReminder(i); },
+      async del(id){ items.delete(id); render(); F.deleteDoc(ref(id)).catch(fail); F.deleteDoc(remRef(id)).catch(() => {}); }
     };
+    setupPush(user);
     items = new Map(); store = cloud; render();
     unsub = F.onSnapshot(col, snap => {
       const next = new Map();
