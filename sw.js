@@ -1,5 +1,5 @@
 // 앱 파일은 인터넷이 되면 항상 최신으로 받습니다. VERSION은 캐시를 통째로 비우고 싶을 때 올리세요.
-const VERSION = "v4";
+const VERSION = "v5";
 const SHELL = `planner-shell-${VERSION}`;
 const CDN = "planner-cdn";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "firebase-config.js", "firebase-sync.js"];
@@ -39,4 +39,23 @@ self.addEventListener("fetch", e => {
     if (r.ok) { const copy = r.clone(); caches.open(SHELL).then(c => c.put(key, copy)); }
     return r;
   }).catch(() => caches.match(key, { ignoreSearch: true })));
+});
+
+// 푸시 알림: 알림 서버가 보낸 제목·내용을 그대로 보여 줍니다.
+self.addEventListener("push", e => {
+  let p = {};
+  try { p = e.data ? e.data.json() : {}; } catch(err) { p = { data: { title: e.data && e.data.text() } }; }
+  const d = p.data || p.notification || p;
+  e.waitUntil(self.registration.showNotification(d.title || "스케줄 플래너", {
+    body: d.body || "", tag: d.tag || undefined, icon: "icons/icon-192.png", badge: "icons/icon-192.png",
+    data: { url: d.url || "./#day" }, renotify: !!d.tag
+  }));
+});
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  const url = new URL(e.notification.data?.url || "./", self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
+    for (const c of list) if (c.url.startsWith(self.registration.scope)) { c.focus(); return c.navigate ? c.navigate(url) : null; }
+    return self.clients.openWindow(url);
+  }));
 });
